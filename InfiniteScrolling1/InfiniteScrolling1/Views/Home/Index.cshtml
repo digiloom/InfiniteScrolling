@@ -2,7 +2,72 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+Div Height:<span id="divHeight"></span> | Table Height: <span id="tableHeight"></span> | Scroll Top: <span id="scrollHeight"></span> | Pages: <span id="pageNum">1</span>
+
+<div id="myDiv" style="width: 150px; max-height: 8rem; overflow-y: scroll; border:1px solid #ccc">
+    <table id="myTable">
+        <thead>
+            <tr>
+                <th>Row</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            @for (var i = 0; i < 10; i++)
+            {
+                <tr>
+                    <td>@(i + 1)</td><td>xxx</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            console.log("JQuery ready!");
+
+            $('#myDiv').on('scroll', function () {
+                console.log("scrolling!");
+                $('#divHeight').text($('#myDiv').height());
+                $('#tableHeight').text($('#myTable').height());
+                $('#scrollHeight').text($('#myDiv').scrollTop());
+
+                var div = $(this);
+                if (div[0].scrollHeight - div.scrollTop() === div.height()) {
+                    //console.log('Reached the bottom!');
+                    // Use ajax to get more content to append to end of existing content
+
+                    var page = Number($("#pageNum").text());
+
+                    var startIndex = (page * 10) + 1;
+
+                    if (startIndex < 50) {
+                        getData(page + 1);
+                        $("#pageNum").text(page + 1);
+                    }
+
+                }
+
+                function getData(page) {
+                    $.ajax({
+                            url: '/Home/GetTableRows/' + page,
+                            type: 'get',
+                            cache: false,
+                            async: true,
+                            dataType: 'html',
+                            data: page
+                        })
+                        .done(function(result) {
+                            console.log(result);
+                            $("#tableBody").append(result);
+                        })
+                        .fail(function(xhr) {
+                            console.log('error : ' + xhr.status + ' - ' + xhr.statusText + ' - ' + xhr.responseText);
+                        });
+                }
+            });
+        });
+    </script>
+}
