@@ -24,6 +24,11 @@ namespace InfiniteScrolling1.Controllers
             return View();
         }
 
+        public IActionResult FixedTableHeader()
+        {
+            return View();
+        }
+
         public IActionResult GetTableRows(int id)
         {
             var batchSize = 10;
